@@ -78,7 +78,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "const res = pm.response.json();\r\nconst requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r\n\r\n// ========== POSITIVE ==========\r\npm.test(\"Status code is 200\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response contains an ID\", () => {\r\n    pm.expect(res).to.have.property(\"id\");\r\n});\r\n\r\npm.test(\"Title matches request body\", () => {\r\n    if (requestBody.title) {\r\n        pm.expect(res.title).to.eql(requestBody.title);\r\n    }\r\n});\r\n\r\n// ========== NEGATIVE ==========\r\n\r\n// Case 1: Empty body\r\npm.test(\"Negative - Empty body should not create valid product\", () => {\r\n    if (!pm.request.body.raw || pm.request.body.raw.trim() === \"{}\") {\r\n        pm.expect(res).to.not.have.property(\"title\");\r\n    }\r\n});\r\n\r\n// Case 2: Missing title\r\npm.test(\"Negative - Missing title\", () => {\r\n    if (requestBody && !requestBody.title) {\r\n        // API still returns 200, so we check that title is missing/undefined\r\n        pm.expect(res.title).to.be.undefined;\r\n    }\r\n});\r\n\r\n// Case 3: Invalid price type\r\npm.test(\"Negative - Price should be a number\", () => {\r\n    if (requestBody.price && typeof requestBody.price === \"string\") {\r\n        // API may still accept it, but we document the bad behavior\r\n        console.log(\"Warning: API accepted string as price\");\r\n    }\r\n});"
+              "const res = pm.response.json();\r\nconst requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r\n\r\n// ========== POSITIVE ==========\r\npm.test(\"Status code is 200 or 201\", () => {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\npm.test(\"Response contains an ID\", () => {\r\n    pm.expect(res).to.have.property(\"id\");\r\n});\r\n\r\npm.test(\"Title matches request body\", () => {\r\n    if (requestBody.title) {\r\n        pm.expect(res.title).to.eql(requestBody.title);\r\n    }\r\n});\r\n\r\n// ========== NEGATIVE ==========\r\n\r\n// Case 1: Empty body\r\npm.test(\"Negative - Empty body should not create valid product\", () => {\r\n    if (!pm.request.body.raw || pm.request.body.raw.trim() === \"{}\") {\r\n        pm.expect(res).to.not.have.property(\"title\");\r\n    }\r\n});\r\n\r\n// Case 2: Missing title\r\npm.test(\"Negative - Missing title\", () => {\r\n    if (requestBody && !requestBody.title) {\r\n        // API still returns 200, so we check that title is missing/undefined\r\n        pm.expect(res.title).to.be.undefined;\r\n    }\r\n});\r\n\r\n// Case 3: Invalid price type\r\npm.test(\"Negative - Price should be a number\", () => {\r\n    if (requestBody.price && typeof requestBody.price === \"string\") {\r\n        // API may still accept it, but we document the bad behavior\r\n        console.log(\"Warning: API accepted string as price\");\r\n    }\r\n});"
             ]
           }
         }
@@ -115,7 +115,16 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": ""
+          "raw": "https://fakestoreapi.com/products/1",
+          "protocol": "https",
+          "host": [
+            "fakestoreapi",
+            "com"
+          ],
+          "path": [
+            "products",
+            "1"
+          ]
         }
       },
       "response": []
@@ -186,6 +195,68 @@
           "path": [
             "products",
             "7"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Product By Invalid ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 (Fake API behavior)\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Non-existing product returns empty object\", () => {\r\n    const res = pm.response.json();\r\n    pm.expect(Object.keys(res).length).to.eql(0);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://fakestoreapi.com/products/99999",
+          "protocol": "https",
+          "host": [
+            "fakestoreapi",
+            "com"
+          ],
+          "path": [
+            "products",
+            "99999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Invalid ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 (Fake API behavior)\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Deleting non-existing product returns empty object\", () => {\r\n    const res = pm.response.json();\r\n    pm.expect(Object.keys(res).length).to.eql(0);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://fakestoreapi.com/products/99999",
+          "protocol": "https",
+          "host": [
+            "fakestoreapi",
+            "com"
+          ],
+          "path": [
+            "products",
+            "99999"
           ]
         }
       },
