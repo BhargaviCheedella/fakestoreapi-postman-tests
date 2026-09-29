@@ -1,0 +1,201 @@
+{
+  "info": {
+    "_postman_id": "09d5f4dc-d516-4d97-ad70-bb22ec5dd9e4",
+    "name": "FakeStoreAPI-Products",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "42515830"
+  },
+  "item": [
+    {
+      "name": "Fetching Single Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "//--------- +ve -----\r\npm.test(\"Status code is 200\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is an object with required fields\", () => {\r\n    const product = pm.response.json();\r\n    pm.expect(product).to.be.an(\"object\");\r\n    pm.expect(product).to.include.keys(\"id\", \"title\", \"price\", \"category\");\r\n});\r\n\r\npm.test(\"Returned ID matches requested ID\", () => {\r\n    const product = pm.response.json();\r\n    const requestedId = pm.request.url.path.pop();\r\n    pm.expect(product.id.toString()).to.eql(requestedId);\r\n});\r\n\r\n// =============== -ve ====================\r\npm.test(\"Status code is 200 (Fake API behavior)\", () => {\r\n    // Note: Real APIs should return 404\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Negative - Non-existing product returns empty object or null-like\", () => {\r\n    const res = pm.response.json();\r\n    \r\n    // FakeStoreAPI returns an empty object {} for non-existing IDs\r\n    pm.expect(Object.keys(res).length).to.eql(0);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://fakestoreapi.com/products/1",
+          "protocol": "https",
+          "host": [
+            "fakestoreapi",
+            "com"
+          ],
+          "path": [
+            "products",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "All Products",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Status code\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// Response time\r\npm.test(\"Response time is less than 1000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(1000);\r\n});\r\n\r\n// Response is an array\r\npm.test(\"Response is an array\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response).to.be.an(\"array\");\r\n});\r\n\r\n// Array is not empty\r\npm.test(\"Products array is not empty\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response.length).to.be.above(0);\r\n});\r\n\r\n// Each product has required fields\r\npm.test(\"Each product has required fields\", function () {\r\n    const products = pm.response.json();\r\n\r\n    products.forEach(function (product) {\r\n        pm.expect(product).to.have.property(\"id\");\r\n        pm.expect(product).to.have.property(\"title\");\r\n        pm.expect(product).to.have.property(\"price\");\r\n        pm.expect(product).to.have.property(\"description\");\r\n        pm.expect(product).to.have.property(\"category\");\r\n        pm.expect(product).to.have.property(\"image\");\r\n    });\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://fakestoreapi.com/products",
+          "protocol": "https",
+          "host": [
+            "fakestoreapi",
+            "com"
+          ],
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add Product (Valid)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const res = pm.response.json();\r\nconst requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r\n\r\n// ========== POSITIVE ==========\r\npm.test(\"Status code is 200\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response contains an ID\", () => {\r\n    pm.expect(res).to.have.property(\"id\");\r\n});\r\n\r\npm.test(\"Title matches request body\", () => {\r\n    if (requestBody.title) {\r\n        pm.expect(res.title).to.eql(requestBody.title);\r\n    }\r\n});\r\n\r\n// ========== NEGATIVE ==========\r\n\r\n// Case 1: Empty body\r\npm.test(\"Negative - Empty body should not create valid product\", () => {\r\n    if (!pm.request.body.raw || pm.request.body.raw.trim() === \"{}\") {\r\n        pm.expect(res).to.not.have.property(\"title\");\r\n    }\r\n});\r\n\r\n// Case 2: Missing title\r\npm.test(\"Negative - Missing title\", () => {\r\n    if (requestBody && !requestBody.title) {\r\n        // API still returns 200, so we check that title is missing/undefined\r\n        pm.expect(res.title).to.be.undefined;\r\n    }\r\n});\r\n\r\n// Case 3: Invalid price type\r\npm.test(\"Negative - Price should be a number\", () => {\r\n    if (requestBody.price && typeof requestBody.price === \"string\") {\r\n        // API may still accept it, but we document the bad behavior\r\n        console.log(\"Warning: API accepted string as price\");\r\n    }\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"title\": \"Test Product\",\r\n  \"price\": 13.5,\r\n  \"description\": \"This is a test product created via Postman\",\r\n  \"image\": \"https://i.pravatar.cc\",\r\n  \"category\": \"electronics\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://fakestoreapi.com/products",
+          "protocol": "https",
+          "host": [
+            "fakestoreapi",
+            "com"
+          ],
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product by ID (Valid)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Product (Valid)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const res = pm.response.json();\r\nconst requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r\n\r\n// ========== POSITIVE ==========\r\npm.test(\"Status code is 200\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Title is updated correctly\", () => {\r\n    if (requestBody.title) {\r\n        pm.expect(res.title).to.eql(requestBody.title);\r\n    }\r\n});\r\n\r\npm.test(\"Price is updated correctly\", () => {\r\n    if (requestBody.price) {\r\n        pm.expect(res.price).to.eql(requestBody.price);\r\n    }\r\n});\r\n\r\n// ========== NEGATIVE ==========\r\n\r\n// Case 1: Update with empty body\r\npm.test(\"Negative - Empty body should not wipe data completely\", () => {\r\n    if (!pm.request.body.raw || pm.request.body.raw === \"{}\") {\r\n        // API usually still returns the original product\r\n        pm.expect(res).to.have.property(\"id\");\r\n    }\r\n});\r\n\r\n// Case 2: Invalid ID in URL\r\npm.test(\"Negative - Updating non-existing ID\", () => {\r\n    const requestedId = pm.request.url.path.pop();\r\n    if (requestedId === \"99999\") {\r\n        // Fake API still returns 200 + empty object\r\n        pm.expect(Object.keys(res).length).to.eql(0);\r\n    }\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"title\": \"Updated Test Product\",\r\n  \"price\": 99.99,\r\n  \"description\": \"This product has been updated via Postman\",\r\n  \"image\": \"https://i.pravatar.cc\",\r\n  \"category\": \"electronics\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://fakestoreapi.com/products/7",
+          "protocol": "https",
+          "host": [
+            "fakestoreapi",
+            "com"
+          ],
+          "path": [
+            "products",
+            "7"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product (Valid)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// ================== POSITIVE ==================\r\npm.test(\"Status code is 200\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response contains the deleted product\", () => {\r\n    const product = pm.response.json();\r\n    pm.expect(product).to.have.property(\"id\");\r\n    pm.expect(product).to.have.property(\"title\");\r\n});\r\n// ======================= NEGATIVE===============\r\npm.test(\"Status code is 200 (Fake API behavior)\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Negative - Deleting non-existing product returns empty object\", () => {\r\n    const res = pm.response.json();\r\n    pm.expect(Object.keys(res).length).to.eql(0);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://fakestoreapi.com/products/7",
+          "protocol": "https",
+          "host": [
+            "fakestoreapi",
+            "com"
+          ],
+          "path": [
+            "products",
+            "7"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "productId",
+      "value": ""
+    }
+  ]
+}
