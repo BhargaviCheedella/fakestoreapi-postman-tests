@@ -14,7 +14,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "//--------- +ve -----\r\npm.test(\"Status code is 200\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is an object with required fields\", () => {\r\n    const product = pm.response.json();\r\n    pm.expect(product).to.be.an(\"object\");\r\n    pm.expect(product).to.include.keys(\"id\", \"title\", \"price\", \"category\");\r\n});\r\n\r\npm.test(\"Returned ID matches requested ID\", () => {\r\n    const product = pm.response.json();\r\n    const requestedId = pm.request.url.path.pop();\r\n    pm.expect(product.id.toString()).to.eql(requestedId);\r\n});\r\n\r\n// =============== -ve ====================\r\npm.test(\"Status code is 200 (Fake API behavior)\", () => {\r\n    // Note: Real APIs should return 404\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Negative - Non-existing product returns empty object or null-like\", () => {\r\n    const res = pm.response.json();\r\n    \r\n    // FakeStoreAPI returns an empty object {} for non-existing IDs\r\n    pm.expect(Object.keys(res).length).to.eql(0);\r\n});"
+              "//--------- +ve -----\r\npm.test(\"Status code is 200\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is an object with required fields\", () => {\r\n    const product = pm.response.json();\r\n    pm.expect(product).to.be.an(\"object\");\r\n    pm.expect(product).to.include.keys(\"id\", \"title\", \"price\", \"category\");\r\n});\r\n\r\npm.test(\"Returned ID matches requested ID\", () => {\r\n    const product = pm.response.json();\r\n    const requestedId = pm.request.url.path.pop();\r\n    pm.expect(product.id.toString()).to.eql(requestedId);\r\n});\r\n\r\n// // =============== -ve ====================\r\npm.test(\"Status code is 200 (Fake API behavior)\", () => {\r\n    // Note: Real APIs should return 404\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// pm.test(\"Negative - Non-existing product returns empty object or null-like\", () => {\r\n//     const res = pm.response.json();\r\n    \r\n//     // FakeStoreAPI returns an empty object {} for non-existing IDs\r\n//     pm.expect(Object.keys(res).length).to.eql(0);\r\n// });"
             ]
           }
         }
@@ -177,7 +177,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "// ================== POSITIVE ==================\r\npm.test(\"Status code is 200\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response contains the deleted product\", () => {\r\n    const product = pm.response.json();\r\n    pm.expect(product).to.have.property(\"id\");\r\n    pm.expect(product).to.have.property(\"title\");\r\n});\r\n// ======================= NEGATIVE===============\r\npm.test(\"Status code is 200 (Fake API behavior)\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Negative - Deleting non-existing product returns empty object\", () => {\r\n    const res = pm.response.json();\r\n    pm.expect(Object.keys(res).length).to.eql(0);\r\n});"
+              "// ================== POSITIVE ==================\r\npm.test(\"Status code is 200\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response contains the deleted product\", () => {\r\n    const product = pm.response.json();\r\n    pm.expect(product).to.have.property(\"id\");\r\n    pm.expect(product).to.have.property(\"title\");\r\n});\r\n// ======================= NEGATIVE===============\r\npm.test(\"Status code is 200 (Fake API behavior)\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// pm.test(\"Negative - Deleting non-existing product returns empty object\", () => {\r\n//     const res = pm.response.json();\r\n//     pm.expect(Object.keys(res).length).to.eql(0);\r\n// });"
             ]
           }
         }
@@ -208,7 +208,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 200 (Fake API behavior)\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Non-existing product returns empty object\", () => {\r\n    const res = pm.response.json();\r\n    pm.expect(Object.keys(res).length).to.eql(0);\r\n});"
+              "pm.test(\"Status code is 200 (Fake API behavior)\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Non-existing product returns empty response\", function () {\r\n    const responseText = pm.response.text();\r\n\r\n    // Handles both empty body and empty object\r\n    if (!responseText || responseText.trim() === \"\") {\r\n        pm.expect(responseText).to.be.empty;\r\n    } else {\r\n        const res = pm.response.json();\r\n        pm.expect(Object.keys(res).length).to.eql(0);\r\n    }\r\n});"
             ]
           }
         }
@@ -239,7 +239,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 200 (Fake API behavior)\", () => {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Deleting non-existing product returns empty object\", () => {\r\n    const res = pm.response.json();\r\n    pm.expect(Object.keys(res).length).to.eql(0);\r\n});"
+              "pm.test(\"Status code is 200 (Fake API behavior)\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Deleting non-existing product returns empty response\", function () {\r\n    const responseText = pm.response.text();\r\n\r\n    if (!responseText || responseText.trim() === \"\") {\r\n        pm.expect(responseText).to.be.empty;\r\n    } else {\r\n        const res = pm.response.json();\r\n        pm.expect(Object.keys(res).length).to.eql(0);\r\n    }\r\n});"
             ]
           }
         }
