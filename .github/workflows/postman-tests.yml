@@ -1,25 +1,39 @@
-pipeline {
-  agent any
+name: Postman API Tests
 
-  tools {nodejs "{your_nodejs_configured_tool_name}"}
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
-  stages {
-    stage('Install Postman CLI') {
-      steps {
-        sh 'curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh'
-      }
-    }
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
 
-    stage('Postman CLI Login') {
-      steps {
-        sh 'postman login --with-api-key $POSTMAN_API_KEY'
-        }
-    }
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    stage('Running collection') {
-      steps {
-        sh 'postman collection run "42515830-09d5f4dc-d516-4d97-ad70-bb22ec5dd9e4"'
-      }
-    }
-  }
-}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Postman Collection
+        run: |
+          newman run collections/FakeStoreAPI-Products.postman_collection.json \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export newman-report.html \
+            --delay-request 200
+
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: newman-report
+          path: newman-report.html
+          retention-days: 7
