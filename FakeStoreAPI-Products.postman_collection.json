@@ -1,0 +1,471 @@
+{
+  "info": {
+    "_postman_id": "a9e2424e-47a5-4ffb-ad91-9741e00b2b32",
+    "name": "FakeStore Product API Automation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "42515830"
+  },
+  "item": [
+    {
+      "name": "GET Products",
+      "item": [
+        {
+          "name": "All Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Response time is less than 2000 ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response is an array\", function () {\r\n    pm.expect(response).to.be.an(\"array\");\r\n});\r\n\r\npm.test(\"Products array is not empty\", function () {\r\n    pm.expect(response.length).to.be.greaterThan(0);\r\n});\r\n\r\npm.test(\"Every product contains required fields\", function () {\r\n\r\n    response.forEach(function(product) {\r\n\r\n        pm.expect(product).to.have.property(\"id\");\r\n        pm.expect(product).to.have.property(\"title\");\r\n        pm.expect(product).to.have.property(\"price\");\r\n        pm.expect(product).to.have.property(\"category\");\r\n        pm.expect(product).to.have.property(\"description\");\r\n        pm.expect(product).to.have.property(\"image\");\r\n        pm.expect(product).to.have.property(\"rating\");\r\n\r\n    });\r\n});\r\n\r\npm.test(\"Product ID should be a number\", function () {\r\n\r\n    response.forEach(function(product) {\r\n        pm.expect(product.id).to.be.a(\"number\");\r\n    });\r\n\r\n});\r\n\r\npm.test(\"Product price should be a number\", function () {\r\n\r\n    response.forEach(function(product) {\r\n        pm.expect(product.price).to.be.a(\"number\");\r\n    });\r\n\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Product By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Response time is less than 2000 ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\nconst product = pm.response.json();\r\n\r\npm.test(\"Product response is an object\", function () {\r\n    pm.expect(product).to.be.an(\"object\");\r\n});\r\n\r\npm.test(\"Product has ID\", function () {\r\n    pm.expect(product).to.have.property(\"id\");\r\n});\r\n\r\npm.test(\"Product has title\", function () {\r\n    pm.expect(product).to.have.property(\"title\");\r\n});\r\n\r\npm.test(\"Product has price\", function () {\r\n    pm.expect(product).to.have.property(\"price\");\r\n});\r\n\r\npm.test(\"Product ID matches requested ID\", function () {\r\n\r\n    pm.expect(product.id).to.eql(\r\n        Number(pm.environment.get(\"productId\"))\r\n    );\r\n\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "POST Products",
+      "item": [
+        {
+          "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 or 201\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Response time is less than 2000 ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response contains product ID\", function () {\r\n    pm.expect(response).to.have.property(\"id\");\r\n});\r\n\r\npm.test(\"Product ID is a number\", function () {\r\n    pm.expect(response.id).to.be.a(\"number\");\r\n});\r\n\r\npm.test(\"Created product title is correct\", function () {\r\n    pm.expect(response.title).to.eql(\r\n        \"Automation Testing Product\"\r\n    );\r\n});\r\n\r\npm.test(\"Created product price is correct\", function () {\r\n    pm.expect(response.price).to.eql(999.99);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Automation Testing Product\",\r\n    \"price\": 999.99,\r\n    \"description\": \"Product created for API automation testing\",\r\n    \"image\": \"https://example.com/product.jpg\",\r\n    \"category\": \"testing\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();\r\n\r\nif (response.id) {\r\n\r\n    pm.environment.set(\r\n        \"createdProductId\",\r\n        response.id\r\n    );\r\n\r\n}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT — Update Product",
+      "item": [
+        {
+          "name": "Update Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is successful\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Updated product has ID\", function () {\r\n    pm.expect(response).to.have.property(\"id\");\r\n});\r\n\r\npm.test(\"Product title was updated\", function () {\r\n    pm.expect(response.title).to.eql(\r\n        \"Updated Automation Product\"\r\n    );\r\n});\r\n\r\npm.test(\"Product price was updated\", function () {\r\n    pm.expect(response.price).to.eql(1299.99);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Updated Automation Product\",\r\n    \"price\": 1299.99,\r\n    \"description\": \"Updated product for API testing\",\r\n    \"image\": \"https://example.com/updated.jpg\",\r\n    \"category\": \"automation\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "DELETE Products",
+      "item": [
+        {
+          "name": "Delete Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Delete request returns successful status\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 204]);\r\n});\r\n\r\npm.test(\"Response time is less than 2000 ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Negative Tests",
+      "item": [
+        {
+          "name": "Invalid Product ID",
+          "item": [
+            {
+              "name": "Invalid Product ID",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Invalid product ID request is handled\", function () {\n    pm.expect(pm.response.code).to.eql(200);\n});\n\npm.test(\"Response body is empty\", function () {\n    pm.expect(pm.response.text()).to.eql(\"\");\n});\n\npm.test(\"Content-Length is 0\", function () {\n    pm.expect(pm.response.headers.get(\"Content-Length\")).to.eql(\"0\");\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/products/999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "products",
+                    "999999"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Invalid Product Body",
+          "item": [
+            {
+              "name": "Invalid Product Body",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"API returns a response\", function () {\n    pm.expect(pm.response.code).to.be.a(\"number\");\n});\n\npm.test(\"Response time is below 2 seconds\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(2000);\n});\n\npm.test(\"Invalid product body should return 400\", function () {\n    pm.response.to.have.status(400);\n});\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\": 12345,\r\n    \"price\": \"invalid-price\",\r\n    \"description\": true,\r\n    \"image\": 999,\r\n    \"category\": false\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "products"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Invalid Price",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\": \"Invalid Price\",\r\n    \"price\": -100,\r\n    \"description\": true,\r\n    \"image\": 999,\r\n    \"category\": false\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "products"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Missing Fields",
+          "item": [
+            {
+              "name": "Missing Title",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Missing title should be rejected\", function () {\r\n    pm.expect(pm.response.code).to.eql(400);\r\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"price\": 999.99,\r\n    \"description\": \"Product without title\",\r\n    \"image\": \"https://example.com/product.jpg\",\r\n    \"category\": \"testing\"\r\n}\r\n\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "products"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Missing Price",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\": \"Product Without Price\",\r\n    \"description\": \"Testing missing price\",\r\n    \"image\": \"https://example.com/product.jpg\",\r\n    \"category\": \"testing\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "products"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Empty Body",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "products"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Invalid HTTP Method",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invalid HTTP method should be rejected\", function () {\r\n    pm.expect(pm.response.code).to.eql(405);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Invalid PATCH Test\",\r\n    \"price\": 500\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "const response = pm.response.json();\r",
+          "\r",
+          "if (response.id) {\r",
+          "\r",
+          "    pm.environment.set(\r",
+          "        \"createdProductId\",\r",
+          "        response.id\r",
+          "    );\r",
+          "\r",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ]
+}
