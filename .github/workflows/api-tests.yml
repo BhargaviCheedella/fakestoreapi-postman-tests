@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
+
   workflow_dispatch:
 
 jobs:
@@ -16,43 +18,34 @@ jobs:
 
     steps:
 
-      # 1. Checkout repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Install Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3. Install Newman
       - name: Install Newman
-        run: |
-          npm install -g newman
+        run: npm install -g newman
 
-      # 4. Install HTML reporter
-      - name: Install Newman HTML Extra Reporter
-        run: |
-          npm install -g newman-reporter-htmlextra
+      - name: Install HTML Extra Reporter
+        run: npm install -g newman-reporter-htmlextra
 
-      # 5. Create reports directory
       - name: Create Reports Directory
-        run: |
-          mkdir -p reports
+        run: mkdir -p reports
 
-      # 6. Run Postman Collection
-      - name: Run Postman API Tests
+      - name: Run Newman Tests
         run: |
-          newman run collections/FakeStoreAPI-Products.postman_collection.json \
-            -e environments/FakeStore-Environment.postman_environment.json \
+          newman run postman/FakeStoreAPI-Products.postman_collection.json \
+            -e postman/FakeStore-Environment.postman_environment.json \
+            --reporters cli,htmlextra,json,junit \
             --reporter-htmlextra-export reports/api-test-report.html \
             --reporter-json-export reports/api-test-report.json \
             --reporter-junit-export reports/api-test-report.xml \
             > reports/api-test-report.txt
 
-      # 7. Upload test reports
-      - name: Upload API Test Reports
+      - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
