@@ -37,8 +37,8 @@ jobs:
 
       - name: Run Newman Tests
         run: |
-          newman run postman/FakeStoreAPI-Products.postman_collection.json \
-            -e postman/FakeStore-Environment.postman_environment.json \
+          newman run collections/FakeStoreAPI-Products_postman_collection.json \
+            -e environments/FakeStore-Environment.postman_environment.json \
             --reporters cli,htmlextra,json,junit \
             --reporter-htmlextra-export reports/api-test-report.html \
             --reporter-json-export reports/api-test-report.json \
