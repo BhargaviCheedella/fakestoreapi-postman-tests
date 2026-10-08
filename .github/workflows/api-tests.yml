@@ -5,7 +5,9 @@ on:
     branches:
       - main
   pull_request:
-
+    branches: 
+      - main
+  workflow_dispatch: 
 jobs:
   api-tests:
     runs-on: ubuntu-latest
@@ -22,10 +24,23 @@ jobs:
       - name: Install Newman
         run: npm install -g newman
 
-      - name: Run Postman API Tests
+      - name: Install HTML Extra Reporter
+        run: npm install -g newman-reporter-htmlextra
+
+      - name: Create Reports Directory
+        run: mkdir -p reports
+
+      - name: Run Postman Collection
         run: |
-          mkdir -p reports
-          newman run collections/FakeStoreAPI-Products_postman_collection.json \
-            -e environments/FakeStore.postman_environment.json \
-            --reporters cli,junit \
-            --reporter-junit-export reports/newman-results.xml
+          newman run "collections/FakeStoreAPI-Products_postman_collection.json" \
+            -e "environments/FakeStore.postman_environment.json" \
+            -r cli,json,htmlextra \
+            --reporter-json-export "reports/newman-report.json" \
+            --reporter-htmlextra-export "reports/newman-report.html" \
+            > "reports/newman-report.txt"
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-api-test-reports
+          path: reports/
