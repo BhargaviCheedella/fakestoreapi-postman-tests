@@ -44,7 +44,11 @@ jobs:
             --reporter-json-export reports/api-test-report.json \
             --reporter-junit-export reports/api-test-report.xml \
             > reports/api-test-report.txt
-
+      - name: Check files
+        run: |
+          echo "Repository files:"
+          find. -type f | sort
+          
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v4
