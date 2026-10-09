@@ -5,27 +5,48 @@ on:
     branches:
       - main
   pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   api-tests:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 20
 
-      - name: Install Newman
-        run: npm install -g newman
+      - name: Install Newman and HTML Extra Reporter
+        run: npm install -g newman newman-reporter-htmlextra
 
-      - name: Run Postman API Tests
+      - name: Verify Collection and Environment Files
         run: |
-          mkdir -p reports
-          newman run collections/FakeStoreAPI-Products_postman_collection.json \
-            -e environments/FakeStore.postman_environment.json \
-            --reporters cli,junit \
-            --reporter-junit-export reports/newman-results.xml
+          ls -la collections environments
+
+      - name: Create Reports Directory
+        run: mkdir -p reports
+
+      - name: Run Newman Tests
+        shell: bash
+        run: |
+          set -o pipefail
+          newman run "collections/FakeStoreAPI-Products_postman_collection.json" \
+            -e "environments/FakeStore.postman_environment.json" \
+            --reporters cli,htmlextra,json,junit \
+            --reporter-htmlextra-export reports/api-test-report.html \
+            --reporter-json-export reports/api-test-report.json \
+            --reporter-junit-export reports/api-test-report.xml \
+            | tee reports/api-test-report.txt
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-api-test-reports
+          path: reports/
