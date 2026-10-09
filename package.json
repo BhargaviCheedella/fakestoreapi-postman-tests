@@ -1,16 +1,13 @@
 {
   "name": "postman_api_testing_mini-project",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "newman run collections/FakeStoreAPI-Products_postman_collection.json -e environments/FakeStore.postman_environment.json -r cli,htmlextra,json,junit --reporter-htmlextra-export reports/api-test-report.html --reporter-json-export reports/api-test-report.json --reporter-junit-export reports/api-test-report.xml",
+    "test:txt": "npm test --silent -- --no-color > reports/api-test-report.txt",
+    "test:html": "newman run collections/FakeStoreAPI-Products_postman_collection.json -e environments/FakeStore.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export reports/api-test-report.html"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "devDependencies": {
     "newman": "^6.2.2",
-    "newman-reporter-junitfull": "^1.1.1"
+    "newman-reporter-htmlextra": "^1.23.1"
   }
 }

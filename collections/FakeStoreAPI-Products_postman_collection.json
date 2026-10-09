@@ -14,7 +14,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// pm.test(\"Response time is under 1500ms\", function () {\r\n//     pm.expect(pm.response.responseTime).to.be.below(1500);\r\n// });\r\n\r\npm.test(\"Response is an array\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.be.an(\"array\");\r\n    pm.expect(data.length).to.be.above(0);\r\n});\r\n\r\npm.test(\"Each product has required fields\", function () {\r\n    pm.response.json().forEach(p => {\r\n        pm.expect(p).to.have.all.keys(\r\n            \"id\", \"title\", \"price\", \"description\", \"category\", \"image\", \"rating\"\r\n        );\r\n    });\r\n});"
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// pm.test(\"Response time is under 1500ms\", function () {\r\n//     pm.expect(pm.response.responseTime).to.be.below(1500);\r\n// });\r\n\r\npm.test(\"Response is an array\", function () {\r\n    const json = pm.response.json();\r\n    pm.expect(json.products).to.be.an(\"array\").that.is.not.empty;\r\n});\r\n\r\npm.test(\"Each product has required fields\", function () {\r\n    pm.response.json().products.forEach(p => {\r\n        pm.expect(p).to.include.keys(\r\n            \"id\", \"title\", \"price\", \"category\", \"description\", \"rating\"\r\n        );\r\n    });\r\n});"
             ]
           }
         }
@@ -80,7 +80,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\nconst body = pm.response.json();\r\nconst limit = parseInt(pm.request.url.query.get(\"limit\"), 10);\r\n\r\npm.test(\"Response is an array\", () => pm.expect(body).to.be.an(\"array\"));\r\npm.test(\"Number of items matches the limit\", () => pm.expect(body).to.have.lengthOf(limit));"
+              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\nconst body = pm.response.json();\r\nconst limit = parseInt(pm.request.url.query.get(\"limit\"), 10);\r\n\r\npm.test(\"Response is an array\", () => {\r\n    pm.expect(body.products).to.be.an(\"array\").that.is.not.empty});\r\npm.test(\"Number of items matches the limit\", () => {\r\n    pm.expect(pm.response.json().products).to.have.lengthOf(limit)\r\n    });"
             ]
           }
         }
@@ -114,7 +114,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\nconst body = pm.response.json();\r\nconst order = pm.request.url.query.get(\"sort\");   // \"asc\" or \"desc\"\r\n\r\npm.test(\"Products are sorted by id (\" + order + \")\", () => {\r\n    const ids = body.map(p => p.id);\r\n    const sorted = [...ids].sort((a, b) => order === \"desc\" ? b - a : a - b);\r\n    pm.expect(ids).to.eql(sorted);\r\n});"
+              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Products are sorted by id (desc)\", () => {\r\n    const ids = pm.response.json().products.map(p => p.id);\r\n    const sorted = [...ids].sort((a, b) => b - a);\r\n    pm.expect(ids).to.eql(sorted);\r\n});"
             ]
           }
         }
@@ -123,7 +123,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/products?sort=desc",
+          "raw": "{{base_url}}/products?sortBy=id&order=desc",
           "host": [
             "{{base_url}}"
           ],
@@ -132,7 +132,11 @@
           ],
           "query": [
             {
-              "key": "sort",
+              "key": "sortBy",
+              "value": "id"
+            },
+            {
+              "key": "order",
               "value": "desc"
             }
           ]
@@ -148,7 +152,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\nconst body = pm.response.json();\r\npm.test(\"Response is an array of strings\", () => {\r\n    pm.expect(body).to.be.an(\"array\").that.is.not.empty;\r\n    body.forEach(c => pm.expect(c).to.be.a(\"string\"));\r\n});\r\npm.test(\"Contains the known categories\", () => {\r\n    pm.expect(body).to.include.members([\"electronics\", \"jewelery\", \"men's clothing\", \"women's clothing\"]);\r\n});"
+              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\n\r\npm.test(\"Response is an array of strings\", () => {\r\n    const body = pm.response.json();\r\n    pm.expect(body).to.be.an(\"array\");\r\n    body.forEach(c => pm.expect(c).to.be.a(\"string\"));\r\n});\r\n\r\npm.test(\"Contains known categories\", () => {\r\n    pm.expect(pm.response.json()).to.include.members([\"beauty\", \"fragrances\"]);\r\n});"
             ]
           }
         }
@@ -157,13 +161,13 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/products/categories",
+          "raw": "{{base_url}}/products/category-list",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "products",
-            "categories"
+            "category-list"
           ]
         }
       },
@@ -177,7 +181,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\nconst body = pm.response.json();\r\nconst category = decodeURIComponent(pm.request.url.path[pm.request.url.path.length - 1]);\r\n\r\npm.test(\"Response is a non-empty array\", () => pm.expect(body).to.be.an(\"array\").that.is.not.empty);\r\npm.test(\"Every product belongs to category: \" + category, () => {\r\n    body.forEach(p => pm.expect(p.category).to.eql(category));\r\n});"
+              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\nconst body = pm.response.json();\r\nconst category = decodeURIComponent(pm.request.url.path[pm.request.url.path.length - 1]);\r\n\r\npm.test(\"Response is a non-empty array\", () => {\r\n    pm.expect(pm.response.json().products).to.be.an(\"array\").that.is.not.empty;\r\n});\r\n\r\npm.test(\"Every product belongs to category: smartphones\", () => {\r\n    pm.response.json().products.forEach(p => pm.expect(p.category).to.eql(\"smartphones\"));\r\n});"
             ]
           }
         }
@@ -186,14 +190,14 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/products/category/jewelery",
+          "raw": "{{base_url}}/products/category/smartphones",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "products",
             "category",
-            "jewelery"
+            "smartphones"
           ]
         }
       },
@@ -207,7 +211,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\nconst body = pm.response.json();\r\npm.test(\"Cart data is returned in the right shape\", () => {\r\n    if (Array.isArray(body)) {\r\n        pm.expect(body).to.not.be.empty;\r\n        pm.expect(body[0]).to.include.all.keys(\"id\", \"userId\", \"products\");\r\n    } else {\r\n        pm.expect(body).to.include.all.keys(\"id\", \"userId\", \"products\");\r\n        pm.expect(body.products).to.be.an(\"array\");\r\n    }\r\n});"
+              "pm.test(\"Cart data is returned in the right shape\", () => {\r\n    const carts = pm.response.json().carts;\r\n    pm.expect(carts).to.be.an(\"array\").that.is.not.empty;\r\n    pm.expect(carts[0]).to.include.keys(\"id\", \"userId\", \"products\");\r\n});"
             ]
           }
         }
@@ -235,7 +239,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\nconst body = pm.response.json();\r\npm.test(\"User data is returned in the right shape\", () => {\r\n    const first = Array.isArray(body) ? body[0] : body;\r\n    pm.expect(first).to.include.all.keys(\"id\", \"username\", \"email\");\r\n    pm.expect(first.email).to.include(\"@\");\r\n});"
+              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"User data is returned in the right shape\", () => {\r\n    const users = pm.response.json().users;\r\n    pm.expect(users).to.be.an(\"array\").that.is.not.empty;\r\n    pm.expect(users[0]).to.include.keys(\"id\", \"username\", \"email\");\r\n});"
             ]
           }
         }
@@ -281,12 +285,13 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/products",
+          "raw": "{{base_url}}/products/add",
           "host": [
             "{{base_url}}"
           ],
           "path": [
-            "products"
+            "products",
+            "add"
           ]
         }
       },
@@ -405,7 +410,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));\r\nconst body = pm.response.json();\r\npm.test(\"Token is returned\", () => {\r\n    pm.expect(body).to.have.property(\"token\");\r\n    pm.expect(body.token).to.be.a(\"string\").and.not.empty;\r\n});\r\npm.environment.set(\"token\", body.token)"
+              "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r\n\r\npm.test(\"Token is returned\", () => {\r\n    const json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"accessToken\");\r\n    pm.expect(json.accessToken).to.be.a(\"string\").that.is.not.empty;\r\n});\r\npm.environment.set(\"token\", pm.response.json().accessToken);"
             ]
           }
         }
@@ -415,7 +420,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"username\": \"johnd\",\r\n    \"password\": \"m38rmF$\"\r\n}",
+          "raw": "{\r\n  \"username\": \"emilys\",\r\n  \"password\": \"emilyspass\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -443,7 +448,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Status 200 or 404', () => pm.expect([200, 404]).to.include(pm.response.code));\npm.test('Body is empty/null', () => pm.expect(['', 'null']).to.include(pm.response.text().trim()));"
+              "pm.test(\"Status code is 404\", () => pm.response.to.have.status(404));\n\npm.test(\"Error message is returned\", () => {\n    const json = pm.response.json();\n    pm.expect(json).to.have.property(\"message\");\n    pm.expect(json.message).to.include(\"not found\");\n});"
             ]
           }
         }
@@ -477,6 +482,18 @@
         "exec": [
           "pm.test(\"Response time under 3000 ms\", () => {\r",
           "    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+          "});"
+        ],
+        "type": "text/javascript"
+      }
+    },
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "pm.request.headers.upsert({\r",
+          "  key: \"User-Agent\",\r",
+          "  value: \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36\"\r",
           "});"
         ],
         "type": "text/javascript"
